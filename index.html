@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div>Teachable Machine Image Model</div>
+  <button type="button" onclick="init()">Start</button><!-- Upload Area -->
+  <button type="button" onclick="predict()">예측</button><!-- Upload Area -->
+
+  <div id="uploadArea" class="upload-area">
+    <!-- Header -->
+    <div class="upload-area__header">
+      <h1 class="upload-area__title">Upload your file</h1>
+      <p class="upload-area__paragraph">
+        File should be an image
+        <strong class="upload-area__tooltip">
+          Like
+          <span class="upload-area__tooltip-data"></span> <!-- Data Will be Comes From Js -->
+        </strong>
+      </p>
+    </div>
+    <!-- End Header -->
+  
+    <!-- Drop Zoon -->
+    <div id="dropZoon" class="upload-area__drop-zoon drop-zoon">
+      <span class="drop-zoon__icon">
+        <i class='bx bxs-file-image'></i>
+      </span>
+      <p class="drop-zoon__paragraph">Drop your file here or Click to browse</p>
+      <span id="loadingText" class="drop-zoon__loading-text">Please Wait</span>
+      <img src="" alt="Preview Image" id="previewImage" class="drop-zoon__preview-image" draggable="false">
+      <input type="file" id="fileInput" class="drop-zoon__file-input" accept="image/*">
+    </div>
+    <!-- End Drop Zoon -->
+  
+    <!-- File Details -->
+    <div id="fileDetails" class="upload-area__file-details file-details">
+      <h3 class="file-details__title">Uploaded File</h3>
+  
+      <div id="uploadedFile" class="uploaded-file">
+        <div class="uploaded-file__icon-container">
+          <i class='bx bxs-file-blank uploaded-file__icon'></i>
+          <span class="uploaded-file__icon-text"></span> <!-- Data Will be Comes From Js -->
+        </div>
+  
+        <div id="uploadedFileInfo" class="uploaded-file__info">
+          <span class="uploaded-file__name">Proejct 1</span>
+          <span class="uploaded-file__counter">0%</span>
+        </div>
+      </div>
+    </div>
+    <!-- End File Details -->
+  </div>
+  <!-- End Upload Area -->
+    
+
+
+  <div id="label-container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+  <script type="text/javascript">
+      // More API functions here:
+      // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+  
+      // the link to your model provided by Teachable Machine export panel
+      const URL = "https://teachablemachine.withgoogle.com/models/agvDrDf8B/";  
+      let model, webcam, labelContainer, maxPredictions;
+  
+      // Load the image model and setup the webcam
+      async function init() {
+          const modelURL = URL + "model.json";
+          const metadataURL = URL + "metadata.json";
+  
+          // load the model and metadata
+          // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+          // or files from your local hard drive
+          // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+          model = await tmImage.load(modelURL, metadataURL);
+          maxPredictions = model.getTotalClasses();
+  
+          // Convenience function to setup a webcam
+          const flip = true; // whether to flip the webcam
+          labelContainer = document.getElementById('label-container');
+          for (let i = 0; i < maxPredictions; i++) {
+              labelContainer.appendChild(document.createElement("div"));
+          }
+      }
+  
+
+  
+      // run the webcam image through the image model
+      async function predict() {
+          // predict can take in an image, video or canvas html element
+          var image = document.getElementById("previewImage");
+          const prediction = await model.predict(image,false);
+          for (let i = 0; i < maxPredictions; i++) {
+              const classPrediction =
+                  prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+              labelContainer.childNodes[i].innerHTML = classPrediction;
+          }
+      }
+  </script>
+  <script>
+    // Design By
+// - https://dribbble.com/shots/13992184-File-Uploader-Drag-Drop
+
+// Select Upload-Area
+const uploadArea = document.querySelector('#uploadArea')
+
+// Select Drop-Zoon Area
+const dropZoon = document.querySelector('#dropZoon');
+
+// Loading Text
+const loadingText = document.querySelector('#loadingText');
+
+// Slect File Input 
+const fileInput = document.querySelector('#fileInput');
+
+// Select Preview Image
+const previewImage = document.querySelector('#previewImage');
+
+// File-Details Area
+const fileDetails = document.querySelector('#fileDetails');
+
+// Uploaded File
+const uploadedFile = document.querySelector('#uploadedFile');
+
+// Uploaded File Info
+const uploadedFileInfo = document.querySelector('#uploadedFileInfo');
+
+// Uploaded File  Name
+const uploadedFileName = document.querySelector('.uploaded-file__name');
+
+// Uploaded File Icon
+const uploadedFileIconText = document.querySelector('.uploaded-file__icon-text');
+
+// Uploaded File Counter
+const uploadedFileCounter = document.querySelector('.uploaded-file__counter');
+
+// ToolTip Data
+const toolTipData = document.querySelector('.upload-area__tooltip-data');
+
+// Images Types
+const imagesTypes = [
+  "jpeg",
+  "png",
+  "svg",
+  "gif"
+];
+
+// Append Images Types Array Inisde Tooltip Data
+toolTipData.innerHTML = [...imagesTypes].join(', .');
+
+// When (drop-zoon) has (dragover) Event 
+dropZoon.addEventListener('dragover', function (event) {
+  // Prevent Default Behavior 
+  event.preventDefault();
+
+  // Add Class (drop-zoon--over) On (drop-zoon)
+  dropZoon.classList.add('drop-zoon--over');
+});
+
+// When (drop-zoon) has (dragleave) Event 
+dropZoon.addEventListener('dragleave', function (event) {
+  // Remove Class (drop-zoon--over) from (drop-zoon)
+  dropZoon.classList.remove('drop-zoon--over');
+});
+
+// When (drop-zoon) has (drop) Event 
+dropZoon.addEventListener('drop', function (event) {
+  // Prevent Default Behavior 
+  event.preventDefault();
+
+  // Remove Class (drop-zoon--over) from (drop-zoon)
+  dropZoon.classList.remove('drop-zoon--over');
+
+  // Select The Dropped File
+  const file = event.dataTransfer.files[0];
+
+  // Call Function uploadFile(), And Send To Her The Dropped File :)
+  uploadFile(file);
+});
+
+// When (drop-zoon) has (click) Event 
+dropZoon.addEventListener('click', function (event) {
+  // Click The (fileInput)
+  fileInput.click();
+});
+
+// When (fileInput) has (change) Event 
+fileInput.addEventListener('change', function (event) {
+  // Select The Chosen File
+  const file = event.target.files[0];
+
+  // Call Function uploadFile(), And Send To Her The Chosen File :)
+  uploadFile(file);
+});
+
+// Upload File Function
+function uploadFile(file) {
+  // FileReader()
+  const fileReader = new FileReader();
+  // File Type 
+  const fileType = file.type;
+  // File Size 
+  const fileSize = file.size;
+
+  // If File Is Passed from the (File Validation) Function
+  if (fileValidate(fileType, fileSize)) {
+    // Add Class (drop-zoon--Uploaded) on (drop-zoon)
+    dropZoon.classList.add('drop-zoon--Uploaded');
+
+    // Show Loading-text
+    loadingText.style.display = "block";
+    // Hide Preview Image
+    previewImage.style.display = 'none';
+
+    // Remove Class (uploaded-file--open) From (uploadedFile)
+    uploadedFile.classList.remove('uploaded-file--open');
+    // Remove Class (uploaded-file__info--active) from (uploadedFileInfo)
+    uploadedFileInfo.classList.remove('uploaded-file__info--active');
+
+    // After File Reader Loaded 
+    fileReader.addEventListener('load', function () {
+      // After Half Second 
+      setTimeout(function () {
+        // Add Class (upload-area--open) On (uploadArea)
+        uploadArea.classList.add('upload-area--open');
+
+        // Hide Loading-text (please-wait) Element
+        loadingText.style.display = "none";
+        // Show Preview Image
+        previewImage.style.display = 'block';
+
+        // Add Class (file-details--open) On (fileDetails)
+        fileDetails.classList.add('file-details--open');
+        // Add Class (uploaded-file--open) On (uploadedFile)
+        uploadedFile.classList.add('uploaded-file--open');
+        // Add Class (uploaded-file__info--active) On (uploadedFileInfo)
+        uploadedFileInfo.classList.add('uploaded-file__info--active');
+      }, 500);
+
+      // Add The (fileReader) Result Inside (previewImage) Source
+      previewImage.setAttribute('src', fileReader.result);
+
+      // Add File Name Inside Uploaded File Name
+      uploadedFileName.innerHTML = file.name;
+
+      // Call Function progressMove();
+      progressMove();
+    });
+
+    // Read (file) As Data Url 
+    fileReader.readAsDataURL(file);
+  } else { // Else
+
+    this; // (this) Represent The fileValidate(fileType, fileSize) Function
+
+  };
+};
+
+// Progress Counter Increase Function
+function progressMove() {
+  // Counter Start
+  let counter = 0;
+
+  // After 600ms 
+  setTimeout(() => {
+    // Every 100ms
+    let counterIncrease = setInterval(() => {
+      // If (counter) is equle 100 
+      if (counter === 100) {
+        // Stop (Counter Increase)
+        clearInterval(counterIncrease);
+      } else { // Else
+        // plus 10 on counter
+        counter = counter + 10;
+        // add (counter) vlaue inisde (uploadedFileCounter)
+        uploadedFileCounter.innerHTML = `${counter}%`
+      }
+    }, 100);
+  }, 600);
+};
+
+
+// Simple File Validate Function
+function fileValidate(fileType, fileSize) {
+  // File Type Validation
+  let isImage = imagesTypes.filter((type) => fileType.indexOf(`image/${type}`) !== -1);
+
+  // If The Uploaded File Type Is 'jpeg'
+  if (isImage[0] === 'jpeg') {
+    // Add Inisde (uploadedFileIconText) The (jpg) Value
+    uploadedFileIconText.innerHTML = 'jpg';
+  } else { // else
+    // Add Inisde (uploadedFileIconText) The Uploaded File Type 
+    uploadedFileIconText.innerHTML = isImage[0];
+  };
+
+  // If The Uploaded File Is An Image
+  if (isImage.length !== 0) {
+    // Check, If File Size Is 2MB or Less
+    if (fileSize <= 2000000) { // 2MB :)
+      return true;
+    } else { // Else File Size
+      return alert('Please Your File Should be 2 Megabytes or Less');
+    };
+  } else { // Else File Type 
+    return alert('Please make sure to upload An Image File Type');
+  };
+};
+
+// :)
+  </script>
+  
+</body>
+<!-- Copyright (c) 2025 by Ali Majid (https://codepen.io/ir2qi/pen/BaRoyrG)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ -->
+</html>
