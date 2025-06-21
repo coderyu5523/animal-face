@@ -15,6 +15,7 @@
 
 .nav-distance {
   padding : 2.1% 7.7%;
+  
 }
 
 body {
@@ -327,5 +328,44 @@ body {
 
 .uploaded-file__counter {
   font-size: 1rem;
-  color: var(--clr-light-gray);
+  color: #a5a5a5;
+}
+
+#label-container {
+    width: 100%;
+    margin-top: 20px;
+}
+  
+.prediction-bar-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    width: 100%;
+}
+  
+.prediction-label {
+    width: 100px; /* Adjust as needed */
+    text-align: right;
+    margin-right: 10px;
+    font-weight: bold;
+}
+  
+.prediction-bar {
+    flex-grow: 1;
+    height: 20px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+  
+.prediction-bar-fill {
+    height: 100%;
+    background-color: #4285f4; /* Google Blue */
+    border-radius: 5px;
+    transition: width 0.5s ease-in-out;
+}
+  
+.prediction-probability {
+    margin-left: 10px;
+    min-width: 40px; /* Ensure alignment */
 }

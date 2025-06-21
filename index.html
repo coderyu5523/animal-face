@@ -32,12 +32,6 @@
     <hr>
     <div>나는 어떤 동물과 닮았을까?</div>
     <hr>
-    <div class="button-container">
-    <button type="button" onclick="init()">AI 모델 로드</button>
-    <button type="button" onclick="predict()">예측 시작</button>
-    </div>
-
-    <hr>
     
     <div id="uploadArea" class="upload-area">
       <!-- Header -->
@@ -81,13 +75,16 @@
           </div>
         </div>
       </div>
+      <br>
+      <p class="result-message"></p>
+      <div id="label-container"></div>
+
       <!-- End File Details -->
     </div>
     <!-- End Upload Area -->
       
 
 
-    <div id="label-container"></div>
 
   </main>
 
@@ -117,9 +114,6 @@
           // Convenience function to setup a webcam
           const flip = true; // whether to flip the webcam
           labelContainer = document.getElementById('label-container');
-          for (let i = 0; i < maxPredictions; i++) {
-              labelContainer.appendChild(document.createElement("div"));
-          }
       }
   
 
@@ -129,11 +123,59 @@
           // predict can take in an image, video or canvas html element
           var image = document.getElementById("previewImage");
           const prediction = await model.predict(image,false);
-          for (let i = 0; i < maxPredictions; i++) {
-              const classPrediction =
-                  prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-              labelContainer.childNodes[i].innerHTML = classPrediction;
+          prediction.sort((a,b)=> parseFloat(b.probability) - parseFloat(a.probability));
+          var resultMessage ;
+          switch(prediction[0].className){
+            case "dog":
+              resultMessage = "강아지를 닮았어요";
+              break;
+            case "cat":
+              resultMessage = "고양이를 닮았어요";
+              break;
+            case "bear":
+              resultMessage = "곰을 닮았어요";
+              break;
+            case "dinasaur":
+              resultMessage = "공룡을 닮았어요";
+              break;
+            case "rabbit":
+              resultMessage = "토끼를 닮았어요";
+              break;
+
           }
+          $('.result-message').html(resultMessage);
+          
+          labelContainer.innerHTML = ""; // Clear previous results
+          for (let i = 0; i < maxPredictions; i++) {
+              const probability = prediction[i].probability;
+              const percent = (probability * 100).toFixed(0);
+              const className = prediction[i].className;
+
+              const container = document.createElement("div");
+              container.classList.add("prediction-bar-container");
+
+              const label = document.createElement("span");
+              label.classList.add("prediction-label");
+              label.innerText = className;
+
+              const bar = document.createElement("div");
+              bar.classList.add("prediction-bar");
+
+              const barFill = document.createElement("div");
+              barFill.classList.add("prediction-bar-fill");
+              barFill.style.width = percent + "%";
+              
+              bar.appendChild(barFill);
+
+              const probSpan = document.createElement("span");
+              probSpan.classList.add("prediction-probability");
+              probSpan.innerText = percent + "%";
+
+              container.appendChild(label);
+              container.appendChild(bar);
+              container.appendChild(probSpan);
+              labelContainer.appendChild(container);
+        }
       }
   </script>
   <script>
@@ -284,6 +326,10 @@ function uploadFile(file) {
 
       // Call Function progressMove();
       progressMove();
+
+      init().then(()=>{
+        predict();
+      });
     });
 
     // Read (file) As Data Url 
