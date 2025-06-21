@@ -13,6 +13,10 @@
   --clr-light-blue: rgb(171, 202, 255);
 }
 
+.nav-distance {
+  padding : 2.1% 7.7%;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -22,11 +26,19 @@ body {
   font-size: 1.125rem;
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
 }
 
 /* End General Styles */
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 0;
+}
 
 /* Upload Area */
 .upload-area {
